@@ -1,19 +1,28 @@
 #pragma once
 #include "FileSysObj.h"
 #include <string>
-class File : public FileSysObj
-{
-private:
-	unsigned long fileBytes;
-	unsigned long fileCypherBytes;
-	unsigned long fileCypherTextBytes;
-public:
-	File();
-	File(std::string filePath);
-	~File();
 
-	virtual bool encrypt() override;
-	virtual bool writeCyperText() override;
-	virtual bool writeCyper() override;
-};
 
+namespace otp {
+
+	class File : public FileSysObj
+	{
+	private:
+		FileOperation operation;
+		unsigned long size;
+		char* fileBytes;
+		char* fileCypherBytes;
+		char* fileCypherTextBytes;
+		
+		void readFile(FileOperation op);	// inializer helper
+	public:
+		File(std::string filePath, FileOperation op);
+		File(std::string filePath, std::string cypherFilePath, std::string cypherTextFilePath, FileOperation op);
+		~File();
+
+		virtual bool encrypt() override;
+		virtual bool decrypt() override;
+		virtual bool writeCyperText() override;
+		virtual bool writeCyper() override;
+	};
+}

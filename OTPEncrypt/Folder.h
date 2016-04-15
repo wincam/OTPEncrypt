@@ -1,9 +1,14 @@
 #pragma once
 #include "FileSysObj.h"
-class Folder : public FileSysObj
-{
-public:
-	Folder();
-	~Folder();
-};
 
+namespace otp {
+
+
+	class Folder : public FileSysObj
+	{
+	public:
+		Folder();
+		~Folder();
+	};
+
+}

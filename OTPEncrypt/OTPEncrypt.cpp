@@ -11,7 +11,7 @@
 #include "File.h"
 
 void errorMessage();
-void insertFile(std::string* &filePaths, int &s);
+void insertFile(std::string newFilePath, std::string* &filePaths, int &s);
 
 int main(int argc, char* argv[])
 {
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 			if (strcmp(argv[i], "encrypt") == 0) {
 				i++;
 				if (stat(argv[i], &info) == 0) {
-					insertFile(encryptFiles, encryptFilesSize);
+					insertFile(argv[i], encryptFiles, encryptFilesSize);
 				}
 				else
 				{
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 			else if (strcmp(argv[i], "decrypt") == 0) {
 				i++;
 				if (stat(argv[i], &info) == 0) {
-					insertFile(decryptFiles, decryptFilesSize);
+					insertFile(argv[i], decryptFiles, decryptFilesSize);
 				}
 				else
 				{
@@ -65,8 +65,17 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	//file encrypting
+	otp::FileSysObj** filesToEncrypt = new otp::FileSysObj*[encryptFilesSize];
+	
+	for (int i = 0; i < encryptFilesSize; i++)
+	{
+		filesToEncrypt[i] = new otp::File(encryptFiles[i], otp::encrypt);
+	}
+
     return 0;
 }
+
 // Prints error message and shows how to use
 void errorMessage() {
 	std::cout << "Improper Use" << std::endl <<
@@ -74,12 +83,13 @@ void errorMessage() {
 }
 
 // inserts file into file path array
-void insertFile(std::string* &filePaths, int &s) {
+void insertFile(std::string newFilePath, std::string* &filePaths, int &s) {
 	std::string* newFilePaths = new std::string [s + 1];
 	for (int i = 0; i < s; i++)
 	{
 		newFilePaths[i] = filePaths[i];
 	}
+	newFilePaths[s] = newFilePath;
 	if (s != 0) {
 		delete[] filePaths;
 	}
