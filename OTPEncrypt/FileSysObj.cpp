@@ -4,9 +4,10 @@
 
 FileSysObj::FileSysObj()
 {
+	this->filePath= "";
 }
 
-
-FileSysObj::~FileSysObj()
+FileSysObj::FileSysObj(std::string filePath)
 {
+	this->filePath = filePath;
 }
