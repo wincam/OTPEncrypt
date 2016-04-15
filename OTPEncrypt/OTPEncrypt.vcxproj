@@ -22,7 +22,7 @@
     <ProjectGuid>{7CE7FB0B-D5F3-41F0-8CD0-060FAF04F342}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>OTPEncrypt</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.10586.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -148,15 +148,12 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="FileSysObj.h" />
     <ClInclude Include="Folder.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FileSysObj.cpp" />
     <ClCompile Include="Folder.cpp" />
     <ClCompile Include="OTPEncrypt.cpp" />
-    <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
