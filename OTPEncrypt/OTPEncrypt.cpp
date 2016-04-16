@@ -11,15 +11,15 @@
 #include "File.h"
 
 void errorMessage();
-void insertFile(std::string newFilePath, std::string* &filePaths, int &s);
+void insertFile(struct FilePathSet newFilePath, struct FilePathSet* &filePaths, int &s);
 
 struct FilePathSet { std::string file; std::string cypherFile; std::string cypherTextFile; };
 
 int main(int argc, char* argv[])
 {
-	std::string* encryptFiles = NULL;
+	struct FilePathSet* encryptFiles = NULL;
 	int encryptFilesSize = 0;
-	std::string* decryptFiles = NULL;
+	struct FilePathSet* decryptFiles = NULL;
 	int decryptFilesSize = 0;
 
 	// arg processor
@@ -32,16 +32,42 @@ int main(int argc, char* argv[])
 
 	// args are supplied
 	else {
+		struct stat info;
+		struct FilePathSet files;
 		// add to file path lists
 		for (int i = 1; i < argc - 1; i++) {
-			struct stat info;
+			
 
 			//encrypt
 			if (strcmp(argv[i], "encrypt") == 0) {
-				//TODO: add input for all files
-				i++;
-				if (stat(argv[i], &info) == 0) {
-					insertFile(argv[i], encryptFiles, encryptFilesSize);
+				if (stat(argv[i + 1], &info) == 0) {
+					// add file
+					files.file = argv[i + 1];
+					
+					// add cypher file
+					if ((i + 2 > argc) && (!(strcmp(argv[i + 2], "decrypt") == 0 || strcmp(argv[i + 2], "encrypt") == 0))) {
+						files.cypherFile = argv[i + 2];
+						// add cypher text file
+						if ((i + 3 > argc) && (!(strcmp(argv[i + 3], "decrypt") == 0 || strcmp(argv[i + 3], "encrypt") == 0))) {
+							files.cypherTextFile = argv[i + 3];
+							i += 3;
+						}
+						else
+						{
+							i += 2;
+							files.cypherTextFile = "";
+						}
+					}
+					else
+					{
+						i++;
+						files.cypherFile = "";
+						files.cypherTextFile = "";
+					}
+
+
+					insertFile(files, encryptFiles, encryptFilesSize);
+
 				}
 				else
 				{
@@ -53,7 +79,7 @@ int main(int argc, char* argv[])
 				//TODO: add input for all files
 				i++;
 				if (stat(argv[i], &info) == 0) {
-					insertFile(argv[i], decryptFiles, decryptFilesSize);
+					insertFile({"" ,"",  argv[i] }, decryptFiles, decryptFilesSize);
 				}
 				else
 				{
@@ -74,7 +100,7 @@ int main(int argc, char* argv[])
 	
 	for (int i = 0; i < encryptFilesSize; i++)
 	{
-		filesToEncrypt[i] = new otp::File(encryptFiles[i], otp::encrypt);
+		filesToEncrypt[i] = new otp::File(encryptFiles[i].file, encryptFiles[i].cypherFile, encryptFiles[i].cypherTextFile, otp::encrypt);
 		filesToEncrypt[i][0].encrypt();
 		filesToEncrypt[i][0].writeCyperText();
 	}
@@ -84,7 +110,7 @@ int main(int argc, char* argv[])
 
 	for (int i = 0; i < decryptFilesSize; i++)
 	{
-		filesToDecrypt[i] = new otp::File("test.txt", "test.txt_cypher", decryptFiles[i], otp::decrypt);
+		filesToDecrypt[i] = new otp::File("test.txt", "test.txt_cypher", decryptFiles[i].cypherTextFile, otp::decrypt);
 		filesToDecrypt[i][0].decrypt();
 		filesToDecrypt[i][0].writeFile();
 	}
@@ -100,8 +126,8 @@ void errorMessage() {
 }
 
 // inserts file into file path array
-void insertFile(std::string newFilePath, std::string* &filePaths, int &s) {
-	std::string* newFilePaths = new std::string [s + 1];
+void insertFile(struct FilePathSet newFilePath, struct FilePathSet* &filePaths, int &s) {
+	struct FilePathSet* newFilePaths = new struct FilePathSet [s + 1];
 	for (int i = 0; i < s; i++)
 	{
 		newFilePaths[i] = filePaths[i];
