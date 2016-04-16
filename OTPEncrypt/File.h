@@ -10,11 +10,14 @@ namespace otp {
 	private:
 		FileOperation operation;
 		unsigned long size;
+		bool errorState;
+		bool cypherSupplied;
 		char* fileBytes;
 		char* fileCypherBytes;
 		char* fileCypherTextBytes;
 		
 		void readFile(FileOperation op);	// inializer helper
+		void allocFile();	// inializer allocation helper
 	public:
 		File(std::string filePath, FileOperation op);
 		File(std::string filePath, std::string cypherFilePath, std::string cypherTextFilePath, FileOperation op);
