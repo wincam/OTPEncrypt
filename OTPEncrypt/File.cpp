@@ -2,8 +2,6 @@
 #include <random>
 #include <fstream>
 
-
-
 void otp::File::readFile(FileOperation op)
 {
 	this->errorState = false;
@@ -55,7 +53,7 @@ void otp::File::readFile(FileOperation op)
 
 		if (!(inCypherTextFile.is_open() || inCypherFile.is_open())) {
 			this->errorState = true;
-			this->cypherSupplied = true;
+			this->cypherSupplied = false;
 			break;
 		}
 		else
@@ -91,6 +89,13 @@ void otp::File::allocFile()
 	this->fileCypherTextBytes = new char[this->size];
 }
 
+void otp::File::deallocFile()
+{
+	delete[] this->fileBytes;
+	delete[] this->fileCypherBytes;
+	delete[] this->fileCypherTextBytes;
+}
+
 otp::File::File(std::string filePath, FileOperation op) : FileSysObj(filePath, filePath + "_cypher", filePath + "_cyphertext")
 {
 	readFile(op);
@@ -105,36 +110,135 @@ otp::File::File(std::string filePath, std::string cypherFilePath, std::string cy
 otp::File::~File()
 {
 	if (!this->errorState) {
-		delete[] this->fileBytes;
-		delete[] this->fileCypherBytes;
-		delete[] this->fileCypherTextBytes;
+		deallocFile();
 	}	
+}
+
+bool otp::File::is_error()
+{
+	return this->errorState;
+}
+
+void otp::File::setFilePath(std::string filePath)
+{
+	FileSysObj::setFilePath(filePath);
+	//reprocess file
+	if (this->operation = otp::encrypt) {
+		deallocFile();
+		readFile(this->operation);
+	}
+}
+
+void otp::File::setCypherFilePath(std::string filePath)
+{
+	FileSysObj::setCypherFilePath(filePath);
+	//reprocess file
+	std::ifstream inCypherFile;
+	inCypherFile.open(FileSysObj::getCypherFilePath(), std::ios::binary);
+	//read cypher
+	if (inCypherFile.is_open()) {
+		//read file
+		for (unsigned long i = 0; i < this->size; i++)
+		{
+			inCypherFile.read(&fileCypherBytes[i], sizeof(char));
+		}
+		this->cypherSupplied = true;
+	}
+	else
+	{
+		this->cypherSupplied = false;
+	}
+}
+
+void otp::File::setCypherTextFilePath(std::string filePath)
+{
+	FileSysObj::setCypherTextFilePath(filePath);
+	//reprocess file
+	if (this->operation = otp::decrypt) {
+		deallocFile();
+		readFile(this->operation);
+	}
 }
 
 bool otp::File::encrypt()
 {
-	if ((this->operation != otp::encrypt)||this->errorState||(!this->cypherSupplied)) {
+	if ((this->operation != otp::encrypt)||this->errorState) {
 		return false;
 	}
+	//generate cypher
+	if (!this->cypherSupplied) {
+		for (unsigned long i = 0; i < this->size; i++)
+		{
+			this->fileCypherBytes[i] = rand();
+		}
+	}
 
-	return false;
+	// add cypher to file using modular addition
+	for (unsigned long i = 0; i < this->size; i++)
+	{
+		this->fileCypherTextBytes[i] = this->fileBytes[i] + this->fileCypherBytes[i];
+	}
+
+	return true;
 	
 }
 
 bool otp::File::decrypt()
 {
-	if ((this->operation != otp::decrypt)||this->errorState) {
+	if ((this->operation != otp::decrypt)||this->errorState||(!this->cypherSupplied)) {
 		return false;
 	}
-	return false;
+	// add cypher to file using modular addition
+	for (unsigned long i = 0; i < this->size; i++)
+	{
+		this->fileBytes[i] = this->fileCypherTextBytes[i] - this->fileCypherBytes[i];
+	}
+
+
+	return true;
 }
 
-bool otp::File::writeCyperText()
+bool otp::File::writeFile(std::string alternateFilePath)
 {
-	return false;
+	if (this->errorState) {
+		return false;
+	}
+	// open and write
+	std::ofstream outfile(alternateFilePath == "" ? this->getFilePath() : alternateFilePath, std::ios::binary);
+	for (unsigned long i = 0; i < this->size; i++)
+	{
+		outfile.write(&fileBytes[i], sizeof(char));
+	}
+	outfile.close();
+	return true;
 }
 
-bool otp::File::writeCyper()
+bool otp::File::writeCyperText(std::string alternateFilePath)
 {
-	return false;
+	if (this->errorState) {
+		return false;
+	}
+	// open and write
+	std::ofstream outfile(alternateFilePath == "" ? this->getCypherTextFilePath() : alternateFilePath, std::ios::binary);
+	for (unsigned long i = 0; i < this->size; i++)
+	{
+		outfile.write(&fileCypherTextBytes[i], sizeof(char));
+	}
+	outfile.close();
+	return true;
+}
+
+bool otp::File::writeCyper(std::string alternateFilePath)
+{
+	if (this->errorState) {
+		return false;
+	}
+	// open and write
+	std::ofstream outfile(alternateFilePath == "" ? this->getCypherFilePath() : alternateFilePath, std::ios::binary);
+	for (unsigned long i = 0; i < this->size; i++)
+	{
+		outfile.write(&fileCypherBytes[i], sizeof(char));
+	}
+	outfile.close();
+	return true;
 }

@@ -13,6 +13,8 @@
 void errorMessage();
 void insertFile(std::string newFilePath, std::string* &filePaths, int &s);
 
+struct FilePathSet { std::string file; std::string cypherFile; std::string cypherTextFile; };
+
 int main(int argc, char* argv[])
 {
 	std::string* encryptFiles = NULL;
@@ -36,6 +38,7 @@ int main(int argc, char* argv[])
 
 			//encrypt
 			if (strcmp(argv[i], "encrypt") == 0) {
+				//TODO: add input for all files
 				i++;
 				if (stat(argv[i], &info) == 0) {
 					insertFile(argv[i], encryptFiles, encryptFilesSize);
@@ -47,6 +50,7 @@ int main(int argc, char* argv[])
 			}
 			//decrypt
 			else if (strcmp(argv[i], "decrypt") == 0) {
+				//TODO: add input for all files
 				i++;
 				if (stat(argv[i], &info) == 0) {
 					insertFile(argv[i], decryptFiles, decryptFilesSize);
@@ -71,7 +75,20 @@ int main(int argc, char* argv[])
 	for (int i = 0; i < encryptFilesSize; i++)
 	{
 		filesToEncrypt[i] = new otp::File(encryptFiles[i], otp::encrypt);
+		filesToEncrypt[i][0].encrypt();
+		filesToEncrypt[i][0].writeCyperText();
 	}
+
+	//file decrypting
+	otp::FileSysObj** filesToDecrypt = new otp::FileSysObj*[decryptFilesSize];
+
+	for (int i = 0; i < decryptFilesSize; i++)
+	{
+		filesToDecrypt[i] = new otp::File("test.txt", "test.txt_cypher", decryptFiles[i], otp::decrypt);
+		filesToDecrypt[i][0].decrypt();
+		filesToDecrypt[i][0].writeFile();
+	}
+
 
     return 0;
 }
@@ -79,7 +96,7 @@ int main(int argc, char* argv[])
 // Prints error message and shows how to use
 void errorMessage() {
 	std::cout << "Improper Use" << std::endl <<
-		"encrypt \"FILEPATH\" or decrypt \"FILEPATH\" " << std::endl;
+		"encrypt \"FILEPATH\"  \"CYPHER FILEPATH\"(Optional) \"OUTPUT ENCYPTED FILE FILEPATH\"(Optional)  or decrypt \"FILE TO DECYPT FILEPATH\" \"CYPHER FILEPATH\"  \"OUTPUT DECYPTED FILE FILEPATH\"(Optional) " << std::endl;
 }
 
 // inserts file into file path array

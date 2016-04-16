@@ -17,14 +17,15 @@ namespace otp {
 		std::string getCypherFilePath();
 		std::string getCypherTextFilePath();
 
-		void setFilePath(std::string filePath);
-		void setCypherFilePath(std::string filePath);
-		void setCypherTextFilePath(std::string filePath);
+		virtual void setFilePath(std::string filePath);
+		virtual void setCypherFilePath(std::string filePath);
+		virtual void setCypherTextFilePath(std::string filePath);
 
 		virtual bool encrypt() = 0;
 		virtual bool decrypt() = 0;
-		virtual bool writeCyperText() = 0;
-		virtual bool writeCyper() = 0;
+		virtual bool writeFile(std::string alternateFilePath = "") = 0;
+		virtual bool writeCyperText(std::string alternateFilePath = "") = 0;
+		virtual bool writeCyper(std::string alternateFilePath = "") = 0;
 	};
 
 }
