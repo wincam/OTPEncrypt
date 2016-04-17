@@ -103,16 +103,16 @@ void otp::File::deallocFile()
 	delete[] this->fileCypherTextBytes;
 }
 
-otp::File::File(std::string filePath, FileOperation op) : FileSysObj(filePath, filePath + "_cypher", filePath + "_cyphertext")
-{
-	readFile(op);
-}
-
 otp::File::File(std::string filePath, std::string cypherFilePath, std::string cypherTextFilePath, FileOperation op) : FileSysObj(filePath, cypherFilePath, cypherTextFilePath)
 {
 	readFile(op);
 }
 
+
+otp::File::File(otp::FilePathSet files, FileOperation op) : FileSysObj(files)
+{
+	readFile(op);
+}
 
 otp::File::~File()
 {
@@ -133,6 +133,9 @@ otp::FileOperation otp::File::getOperation()
 
 void otp::File::setOperation(FileOperation op)
 {
+	if (!this->errorState) {
+		deallocFile();
+	}
 	readFile(op);
 }
 
@@ -141,7 +144,9 @@ void otp::File::setFilePath(std::string filePath)
 	FileSysObj::setFilePath(filePath);
 	//reprocess file
 	if (this->operation = otp::encrypt) {
-		deallocFile();
+		if (!this->errorState) {
+			deallocFile();
+		}
 		readFile(this->operation);
 	}
 }
@@ -172,7 +177,9 @@ void otp::File::setCypherTextFilePath(std::string filePath)
 	FileSysObj::setCypherTextFilePath(filePath);
 	//reprocess file
 	if (this->operation = otp::decrypt) {
-		deallocFile();
+		if (!this->errorState) {
+			deallocFile();
+		}
 		readFile(this->operation);
 	}
 }

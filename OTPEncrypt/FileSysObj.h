@@ -13,6 +13,17 @@ namespace otp {
 
 	/**
 	* OTPEncrypt
+	* FilePathSet
+	* Represents a set of file paths
+	*
+	* @author Cameron Nicolle
+	* @version 1.0
+	* @since 4/16/2016
+	*/
+	struct FilePathSet { std::string file; std::string cypherFile; std::string cypherTextFile; };
+
+	/**
+	* OTPEncrypt
 	* FileOperation
 	* Represents an encryption or decryption operation
 	*
@@ -47,6 +58,14 @@ namespace otp {
 		* @param cypherTextFilePath	file path of cypher text
 		*/
 		FileSysObj(std::string filePath, std::string cypherFilePath, std::string cypherTextFilePath);
+
+		/**
+		* FileSysObj
+		* Constructor for the FileSysObj class
+		* @param files The file paths
+		*/
+		FileSysObj(struct otp::FilePathSet files);
+
 
 		/**
 		* getFilePath

@@ -29,24 +29,15 @@ void errorMessage();
 * @param filePaths		List of file path sets
 * @param s				Size of of the list of file path sets
 */
-void insertFile(struct FilePathSet newFilePath, struct FilePathSet* &filePaths, int &s);
+void insertFile(struct otp::FilePathSet newFilePath, struct  otp::FilePathSet* &filePaths, int &s);
 
-/**
-* OTPEncrypt
-* FilePathSet
-* Represents a set of file paths
-*
-* @author Cameron Nicolle
-* @version 1.0
-* @since 4/16/2016
-*/
-struct FilePathSet { std::string file; std::string cypherFile; std::string cypherTextFile; };
+
 
 int main(int argc, char* argv[])
 {
-	struct FilePathSet* encryptFiles = NULL;
+	struct  otp::FilePathSet* encryptFiles = NULL;
 	int encryptFilesSize = 0;
-	struct FilePathSet* decryptFiles = NULL;
+	struct  otp::FilePathSet* decryptFiles = NULL;
 	int decryptFilesSize = 0;
 
 	// arg processor
@@ -60,7 +51,7 @@ int main(int argc, char* argv[])
 	// args are supplied
 	else {
 		struct stat info;
-		struct FilePathSet files;
+		struct otp::FilePathSet files;
 		// add to file path lists
 		for (int i = 1; i < argc - 1; i++) {
 			
@@ -72,10 +63,10 @@ int main(int argc, char* argv[])
 					files.file = argv[i + 1];
 					
 					// add cypher file
-					if ((i + 2 > argc) && (!(strcmp(argv[i + 2], "decrypt") == 0 || strcmp(argv[i + 2], "encrypt") == 0))) {
+					if ((i + 2 < argc) && (!(strcmp(argv[i + 2], "decrypt") == 0 || strcmp(argv[i + 2], "encrypt") == 0))) {
 						files.cypherFile = argv[i + 2];
 						// add cypher text file
-						if ((i + 3 > argc) && (!(strcmp(argv[i + 3], "decrypt") == 0 || strcmp(argv[i + 3], "encrypt") == 0))) {
+						if ((i + 3 < argc) && (!(strcmp(argv[i + 3], "decrypt") == 0 || strcmp(argv[i + 3], "encrypt") == 0))) {
 							files.cypherTextFile = argv[i + 3];
 							i += 3;
 						}
@@ -103,10 +94,24 @@ int main(int argc, char* argv[])
 			}
 			//decrypt
 			else if (strcmp(argv[i], "decrypt") == 0) {
-				//TODO: add input for all files
-				i++;
-				if (stat(argv[i], &info) == 0) {
-					insertFile({"" ,"",  argv[i] }, decryptFiles, decryptFilesSize);
+				// add cypher and cypher text files
+				if ((stat(argv[i + 1], &info) == 0) && (i + 2 < argc) && (stat(argv[i + 2], &info) == 0)) {
+					files.cypherTextFile = argv[i + 1];
+					files.cypherFile = argv[i + 2];
+
+					// add file
+					if ((i + 3 < argc) && (!(strcmp(argv[i + 3], "decrypt") == 0 || strcmp(argv[i + 3], "encrypt") == 0))) {
+						files.file = argv[i + 3];
+						i += 3;
+					}
+					else
+					{
+						i += 2;
+						files.file = "";
+					}
+
+					insertFile(files, decryptFiles, decryptFilesSize);
+					
 				}
 				else
 				{
@@ -123,11 +128,12 @@ int main(int argc, char* argv[])
 	}
 
 	//file encrypting
+	//---------------------------------------------------------------------------------------------------------
 	otp::FileSysObj** filesToEncrypt = new otp::FileSysObj*[encryptFilesSize];
 	
 	for (int i = 0; i < encryptFilesSize; i++)
 	{
-		filesToEncrypt[i] = new otp::File(encryptFiles[i].file, encryptFiles[i].cypherFile, encryptFiles[i].cypherTextFile, otp::encrypt);
+		filesToEncrypt[i] = new otp::File(encryptFiles[i], otp::encrypt);
 		filesToEncrypt[i][0].encrypt();
 		filesToEncrypt[i][0].writeCyperText();
 	}
@@ -137,7 +143,7 @@ int main(int argc, char* argv[])
 
 	for (int i = 0; i < decryptFilesSize; i++)
 	{
-		filesToDecrypt[i] = new otp::File("test.txt", "test.txt_cypher", decryptFiles[i].cypherTextFile, otp::decrypt);
+		filesToDecrypt[i] = new otp::File(decryptFiles[i], otp::decrypt);
 		filesToDecrypt[i][0].decrypt();
 		filesToDecrypt[i][0].writeFile();
 	}
@@ -151,8 +157,8 @@ void errorMessage() {
 		"encrypt \"FILEPATH\"  \"CYPHER FILEPATH\"(Optional) \"OUTPUT ENCYPTED FILE FILEPATH\"(Optional)  or decrypt \"FILE TO DECYPT FILEPATH\" \"CYPHER FILEPATH\"  \"OUTPUT DECYPTED FILE FILEPATH\"(Optional) " << std::endl;
 }
 
-void insertFile(struct FilePathSet newFilePath, struct FilePathSet* &filePaths, int &s) {
-	struct FilePathSet* newFilePaths = new struct FilePathSet [s + 1];
+void insertFile(struct  otp::FilePathSet newFilePath, struct  otp::FilePathSet* &filePaths, int &s) {
+	struct  otp::FilePathSet* newFilePaths = new struct otp::FilePathSet [s + 1];
 	// copy from old array to new one
 	for (int i = 0; i < s; i++)
 	{

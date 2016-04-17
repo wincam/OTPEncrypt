@@ -52,18 +52,21 @@ namespace otp {
 		/**
 		* File
 		* Constructor for the File class
-		* @param filePath file path of unencypted file/folder
-		*/
-		File(std::string filePath, FileOperation op);
-		/**
-		* File
-		* Constructor for the File class
 		* @param filePath			file path of unencypted file/folder
 		* @param cypherFilePath		file path of key
 		* @param cypherTextFilePath	file path of cypher text
 		* @param op					Operation to be performed
 		*/
 		File(std::string filePath, std::string cypherFilePath, std::string cypherTextFilePath, FileOperation op);
+
+		/**
+		* File
+		* Constructor for the File class
+		* @param files	The file paths
+		* @param op		Operation to be performed
+		*/
+		File(struct otp::FilePathSet files, FileOperation op);
+
 		~File();
 
 		/**
