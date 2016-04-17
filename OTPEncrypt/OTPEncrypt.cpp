@@ -1,5 +1,12 @@
-// OTPEncrypt.cpp : Defines the entry point for the console application.
-//
+/**
+* OTPEncrypt
+* OTPEncrypt.cpp
+* Uses one time pad encryption to encrypt and decrypt files
+*
+* @author Cameron Nicolle
+* @version 1.0
+* @since 4/15/2016
+*/
 
 #include <iostream>
 #include <string>
@@ -10,9 +17,29 @@
 #include "Folder.h"
 #include "File.h"
 
+/**
+* errorMessage
+* Prints error message
+*/
 void errorMessage();
+/**
+* insertFile
+* Adds new file path set to list
+* @param newFilePath	New file path set
+* @param filePaths		List of file path sets
+* @param s				Size of of the list of file path sets
+*/
 void insertFile(struct FilePathSet newFilePath, struct FilePathSet* &filePaths, int &s);
 
+/**
+* OTPEncrypt
+* FilePathSet
+* Represents a set of file paths
+*
+* @author Cameron Nicolle
+* @version 1.0
+* @since 4/16/2016
+*/
 struct FilePathSet { std::string file; std::string cypherFile; std::string cypherTextFile; };
 
 int main(int argc, char* argv[])
@@ -119,15 +146,14 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-// Prints error message and shows how to use
 void errorMessage() {
 	std::cout << "Improper Use" << std::endl <<
 		"encrypt \"FILEPATH\"  \"CYPHER FILEPATH\"(Optional) \"OUTPUT ENCYPTED FILE FILEPATH\"(Optional)  or decrypt \"FILE TO DECYPT FILEPATH\" \"CYPHER FILEPATH\"  \"OUTPUT DECYPTED FILE FILEPATH\"(Optional) " << std::endl;
 }
 
-// inserts file into file path array
 void insertFile(struct FilePathSet newFilePath, struct FilePathSet* &filePaths, int &s) {
 	struct FilePathSet* newFilePaths = new struct FilePathSet [s + 1];
+	// copy from old array to new one
 	for (int i = 0; i < s; i++)
 	{
 		newFilePaths[i] = filePaths[i];
