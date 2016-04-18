@@ -29,15 +29,39 @@ void errorMessage();
 * @param filePaths		List of file path sets
 * @param s				Size of of the list of file path sets
 */
-void insertFile(struct otp::FilePathSet newFilePath, struct  otp::FilePathSet* &filePaths, int &s);
+void insertFile(struct FileData newfile, struct  FileData* &files, int &s);
 
+/**
+* OTPEncrypt
+* FileSysObjTyp
+* Represents a file or folder
+*
+* @author Cameron Nicolle
+* @version 1.0
+* @since 4/18/2016
+*/
+enum FileSysObjTyp{ file, folder };
 
+/**
+* OTPEncrypt
+* FileData
+* Contains all data about file system object
+*
+* @author Cameron Nicolle
+* @version 1.0
+* @since 4/18/2016
+*/
+struct FileData
+{
+	struct otp::FilePathSet filePaths;
+	FileSysObjTyp type;
+};
 
 int main(int argc, char* argv[])
 {
-	struct  otp::FilePathSet* encryptFiles = NULL;
+	struct  FileData* encryptFiles = NULL;
 	int encryptFilesSize = 0;
-	struct  otp::FilePathSet* decryptFiles = NULL;
+	struct  FileData* decryptFiles = NULL;
 	int decryptFilesSize = 0;
 
 	// arg processor
@@ -50,37 +74,55 @@ int main(int argc, char* argv[])
 
 	// args are supplied
 	else {
-		struct stat info;
-		struct otp::FilePathSet files;
+		struct stat info[2];
+		struct FileData files;
 		// add to file path lists
 		for (int i = 1; i < argc - 1; i++) {
 			
 
 			//encrypt
 			if (strcmp(argv[i], "encrypt") == 0) {
-				if (stat(argv[i + 1], &info) == 0) {
+				if (stat(argv[i + 1], &info[0]) == 0) {
 					// add file
-					files.file = argv[i + 1];
+					files.filePaths.file = argv[i + 1];
+
+					// object type
+					// folder
+					if (info[0].st_mode & S_IFDIR)
+					{
+						files.type = folder;
+					}
+					// file
+					else if (info[0].st_mode & S_IFREG)
+					{
+						files.type = file;
+					}
+					// neither error
+					else
+					{
+						errorMessage();
+						return 1;
+					}
 					
 					// add cypher file
 					if ((i + 2 < argc) && (!(strcmp(argv[i + 2], "decrypt") == 0 || strcmp(argv[i + 2], "encrypt") == 0))) {
-						files.cypherFile = argv[i + 2];
+						files.filePaths.cypherFile = argv[i + 2];
 						// add cypher text file
 						if ((i + 3 < argc) && (!(strcmp(argv[i + 3], "decrypt") == 0 || strcmp(argv[i + 3], "encrypt") == 0))) {
-							files.cypherTextFile = argv[i + 3];
+							files.filePaths.cypherTextFile = argv[i + 3];
 							i += 3;
 						}
 						else
 						{
 							i += 2;
-							files.cypherTextFile = "";
+							files.filePaths.cypherTextFile = "";
 						}
 					}
 					else
 					{
 						i++;
-						files.cypherFile = "";
-						files.cypherTextFile = "";
+						files.filePaths.cypherFile = "";
+						files.filePaths.cypherTextFile = "";
 					}
 
 
@@ -95,19 +137,37 @@ int main(int argc, char* argv[])
 			//decrypt
 			else if (strcmp(argv[i], "decrypt") == 0) {
 				// add cypher and cypher text files
-				if ((stat(argv[i + 1], &info) == 0) && (i + 2 < argc) && (stat(argv[i + 2], &info) == 0)) {
-					files.cypherTextFile = argv[i + 1];
-					files.cypherFile = argv[i + 2];
+				if ((stat(argv[i + 1], &info[0]) == 0) && (i + 2 < argc) && (stat(argv[i + 2], &info[1]) == 0)) {
+					files.filePaths.cypherTextFile = argv[i + 1];
+					files.filePaths.cypherFile = argv[i + 2];
+
+					// object type
+					// folder
+					if ((info[0].st_mode & S_IFDIR) && (info[1].st_mode & S_IFDIR))
+					{
+						files.type = folder;
+					}
+					// file
+					else if ((info[0].st_mode & S_IFREG) && (info[1].st_mode & S_IFREG))
+					{
+						files.type = file;
+					}
+					// neither error
+					else
+					{
+						errorMessage();
+						return 1;
+					}
 
 					// add file
 					if ((i + 3 < argc) && (!(strcmp(argv[i + 3], "decrypt") == 0 || strcmp(argv[i + 3], "encrypt") == 0))) {
-						files.file = argv[i + 3];
+						files.filePaths.file = argv[i + 3];
 						i += 3;
 					}
 					else
 					{
 						i += 2;
-						files.file = "";
+						files.filePaths.file = "";
 					}
 
 					insertFile(files, decryptFiles, decryptFilesSize);
@@ -133,9 +193,22 @@ int main(int argc, char* argv[])
 	
 	for (int i = 0; i < encryptFilesSize; i++)
 	{
-		filesToEncrypt[i] = new otp::Folder(encryptFiles[i], otp::encrypt);
-		/*filesToEncrypt[i][0].encrypt();
-		filesToEncrypt[i][0].writeCyperText();*/
+		//check type
+		switch (encryptFiles[i].type)
+		{
+		case folder:
+			filesToEncrypt[i] = new otp::Folder(encryptFiles[i].filePaths, otp::encrypt);
+			break;
+		case file:
+			filesToEncrypt[i] = new otp::File(encryptFiles[i].filePaths, otp::encrypt);
+			break;
+		default:
+			errorMessage();
+			return 1;
+			break;
+		}
+		filesToEncrypt[i][0].encrypt();
+		filesToEncrypt[i][0].writeCyperText();
 	}
 
 	//file decrypting
@@ -143,9 +216,22 @@ int main(int argc, char* argv[])
 
 	for (int i = 0; i < decryptFilesSize; i++)
 	{
-		filesToDecrypt[i] = new otp::Folder(decryptFiles[i], otp::decrypt);
-		/*filesToDecrypt[i][0].decrypt();
-		filesToDecrypt[i][0].writeFile();*/
+		//check type
+		switch (encryptFiles[i].type)
+		{
+		case folder:
+			filesToDecrypt[i] = new otp::Folder(decryptFiles[i].filePaths, otp::decrypt);
+			break;
+		case file:
+			filesToDecrypt[i] = new otp::File(decryptFiles[i].filePaths, otp::decrypt);
+			break;
+		default:
+			errorMessage();
+			return 1;
+			break;
+		}
+		filesToDecrypt[i][0].decrypt();
+		filesToDecrypt[i][0].writeFile();
 	}
 
 
@@ -157,20 +243,20 @@ void errorMessage() {
 		"encrypt \"FILEPATH\"  \"CYPHER FILEPATH\"(Optional) \"OUTPUT ENCYPTED FILE FILEPATH\"(Optional)  or decrypt \"FILE TO DECYPT FILEPATH\" \"CYPHER FILEPATH\"  \"OUTPUT DECYPTED FILE FILEPATH\"(Optional) " << std::endl;
 }
 
-void insertFile(struct  otp::FilePathSet newFilePath, struct  otp::FilePathSet* &filePaths, int &s) {
-	struct  otp::FilePathSet* newFilePaths = new struct otp::FilePathSet [s + 1];
+void insertFile(struct FileData newfile, struct  FileData* &files, int &s) {
+	struct  FileData* newFiles = new struct FileData[s + 1];
 	// copy from old array to new one
 	for (int i = 0; i < s; i++)
 	{
-		newFilePaths[i] = filePaths[i];
+		newFiles[i] = files[i];
 	}
-	newFilePaths[s] = newFilePath;
+	newFiles[s] = newfile;
 	if (s != 0) {
-		delete[] filePaths;
+		delete[] files;
 	}
 
 	s++;
-	filePaths = newFilePaths;
+	files = newFiles;
 }
 
 

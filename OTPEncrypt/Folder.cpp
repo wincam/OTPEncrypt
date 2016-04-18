@@ -1,5 +1,5 @@
 #include "Folder.h"
-#include "dirent.h"
+#include "dirent\dirent.h"
 #include <iostream>
 
 void otp::Folder::readFile(FileOperation op)
@@ -9,6 +9,7 @@ void otp::Folder::readFile(FileOperation op)
 	DIR           *d;
 	struct dirent *dir;
 	//char dirlist[] = {};
+	
 	int i = 0;
 	d = opendir(this->getFilePath().c_str());
 	if (d)
