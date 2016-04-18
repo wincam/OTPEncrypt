@@ -24,7 +24,7 @@ namespace otp {
 	{
 	private:
 		FileSysObj** subObjects;
-		long subObjectsCount;
+		unsigned long subObjectsCount;
 		bool errorState;
 
 		/**
@@ -33,6 +33,12 @@ namespace otp {
 		* @param op Operation of the class
 		*/
 		void readFile(FileOperation op);
+		/**
+		* addNewObject
+		* Adds new object to class
+		* @param object new object to add
+		*/
+		void addNewObject(FileSysObj* object);
 	public:
 		/**
 		* Folder
