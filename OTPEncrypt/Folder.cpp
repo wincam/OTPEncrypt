@@ -117,27 +117,43 @@ otp::Folder::Folder(otp::FilePathSet files, FileOperation op) : FileSysObj(files
 
 otp::Folder::~Folder()
 {
+	if (this->subObjectsCount != 0) {
+		delete[] this->subObjects;
+	}
 }
 
 bool otp::Folder::isError()
 {
-	return false;
+	bool error = this->errorState;
+	// check all others
+	for (unsigned long i = 0; i < this->subObjectsCount; i++)
+	{
+		error = error && this->subObjects[i][0].isError();
+	}
+	return error;
 }
 
 void otp::Folder::setOperation(FileOperation op)
 {
+	readFile(op);
 }
 
 void otp::Folder::setFilePath(std::string filePath)
 {
+	FileSysObj::setFilePath(filePath);
+	readFile(this->getOperation());
 }
 
 void otp::Folder::setCypherFilePath(std::string filePath)
 {
+	FileSysObj::setCypherFilePath(filePath);
+	readFile(this->getOperation());
 }
 
 void otp::Folder::setCypherTextFilePath(std::string filePath)
 {
+	FileSysObj::setCypherTextFilePath(filePath);
+	readFile(this->getOperation());
 }
 
 bool otp::Folder::encrypt()
