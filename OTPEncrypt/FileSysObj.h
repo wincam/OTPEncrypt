@@ -49,6 +49,7 @@ namespace otp {
 		std::string filePath;
 		std::string cypherFilePath;
 		std::string cypherTextFilePath;
+		FileOperation operation;
 	public:
 		/**
 		* FileSysObj
@@ -66,7 +67,18 @@ namespace otp {
 		*/
 		FileSysObj(struct otp::FilePathSet files);
 
-
+		/**
+		* getOperation
+		* Getter for the operation of the class
+		* @return The operation of the class
+		*/
+		virtual otp::FileOperation getOperation();
+		/**
+		* setOperation
+		* Setter for the operation of the class
+		* @param op The new operation of the class
+		*/
+		virtual void setOperation(FileOperation op);
 		/**
 		* getFilePath
 		* Getter for file path of unencypted file/folder
@@ -105,6 +117,12 @@ namespace otp {
 		*/
 		virtual void setCypherTextFilePath(std::string filePath);
 
+		/**
+		* isError
+		* Getter for the error state of the class
+		* @return Whether the class is in an error state or not
+		*/
+		virtual bool isError() = 0;
 		/**
 		* encrypt
 		* Performs encryption

@@ -5,7 +5,7 @@
 void otp::File::readFile(FileOperation op)
 {
 	this->errorState = false;
-	this->operation = op;
+	FileSysObj::setOperation(op);
 
 	std::ifstream inFile;
 	std::ifstream inCypherFile;
@@ -17,69 +17,69 @@ void otp::File::readFile(FileOperation op)
 
 
 	//check operation
-	switch (this->operation)
+	switch (this->getOperation())
 	{
-		//encrypt
-		case otp::encrypt:
+	//encrypt
+	case otp::encrypt:
 
-			if (!inFile.is_open()) {
-				this->errorState = true;
-				break;
-			}
-			else
-			{
-				this->size = inFile.tellg();
-				inFile.seekg(std::ios::beg);
-				allocFile();
-				//read file
-				for (unsigned long i = 0; i < this->size; i++)
-				{
-					inFile.read(&fileBytes[i], sizeof(char));
-				}
-			}
-			//read cypher
-			if (inCypherFile.is_open()) {
-				//read file
-				for (unsigned long i = 0; i < this->size; i++)
-				{
-					inCypherFile.read(&fileCypherBytes[i], sizeof(char));
-				}
-				this->cypherSupplied = true;
-			}
-			else
-			{
-				this->cypherSupplied = false;
-			}
-			break;
-
-		//decrypt
-		case otp::decrypt:
-
-			if (!(inCypherTextFile.is_open() || inCypherFile.is_open())) {
-				this->errorState = true;
-				this->cypherSupplied = false;
-				break;
-			}
-			else
-			{
-				this->size = inCypherTextFile.tellg();
-				inCypherTextFile.seekg(std::ios::beg);
-				allocFile();
-				this->cypherSupplied = true;
-				//read file
-				for (unsigned long i = 0; i < this->size; i++)
-				{
-					inCypherTextFile.read(&fileCypherTextBytes[i], sizeof(char));
-					inCypherFile.read(&fileCypherBytes[i], sizeof(char));
-				}
-			}
-			break;
-
-		//neither
-		//error
-		default:
+		if (!inFile.is_open()) {
 			this->errorState = true;
 			break;
+		}
+		else
+		{
+			this->size = inFile.tellg();
+			inFile.seekg(std::ios::beg);
+			allocFile();
+			//read file
+			for (unsigned long i = 0; i < this->size; i++)
+			{
+				inFile.read(&fileBytes[i], sizeof(char));
+			}
+		}
+		//read cypher
+		if (inCypherFile.is_open()) {
+			//read file
+			for (unsigned long i = 0; i < this->size; i++)
+			{
+				inCypherFile.read(&fileCypherBytes[i], sizeof(char));
+			}
+			this->cypherSupplied = true;
+		}
+		else
+		{
+			this->cypherSupplied = false;
+		}
+		break;
+
+	//decrypt
+	case otp::decrypt:
+
+		if (!(inCypherTextFile.is_open() || inCypherFile.is_open())) {
+			this->errorState = true;
+			this->cypherSupplied = false;
+			break;
+		}
+		else
+		{
+			this->size = inCypherTextFile.tellg();
+			inCypherTextFile.seekg(std::ios::beg);
+			allocFile();
+			this->cypherSupplied = true;
+			//read file
+			for (unsigned long i = 0; i < this->size; i++)
+			{
+				inCypherTextFile.read(&fileCypherTextBytes[i], sizeof(char));
+				inCypherFile.read(&fileCypherBytes[i], sizeof(char));
+			}
+		}
+		break;
+
+	//neither
+	//error
+	default:
+		this->errorState = true;
+		break;
 	}
 
 	
@@ -98,9 +98,12 @@ void otp::File::allocFile()
 
 void otp::File::deallocFile()
 {
-	delete[] this->fileBytes;
-	delete[] this->fileCypherBytes;
-	delete[] this->fileCypherTextBytes;
+	if (!this->errorState) {
+		delete[] this->fileBytes;
+		delete[] this->fileCypherBytes;
+		delete[] this->fileCypherTextBytes;
+	}
+	
 }
 
 otp::File::File(std::string filePath, std::string cypherFilePath, std::string cypherTextFilePath, FileOperation op) : FileSysObj(filePath, cypherFilePath, cypherTextFilePath)
@@ -126,11 +129,6 @@ bool otp::File::isError()
 	return this->errorState;
 }
 
-otp::FileOperation otp::File::getOperation()
-{
-	return this->operation;
-}
-
 void otp::File::setOperation(FileOperation op)
 {
 	if (!this->errorState) {
@@ -143,11 +141,11 @@ void otp::File::setFilePath(std::string filePath)
 {
 	FileSysObj::setFilePath(filePath);
 	//reprocess file
-	if (this->operation = otp::encrypt) {
+	if (this->getOperation() == otp::encrypt) {
 		if (!this->errorState) {
 			deallocFile();
 		}
-		readFile(this->operation);
+		readFile(this->getOperation());
 	}
 }
 
@@ -176,17 +174,17 @@ void otp::File::setCypherTextFilePath(std::string filePath)
 {
 	FileSysObj::setCypherTextFilePath(filePath);
 	//reprocess file
-	if (this->operation = otp::decrypt) {
+	if (this->getOperation() == otp::decrypt) {
 		if (!this->errorState) {
 			deallocFile();
 		}
-		readFile(this->operation);
+		readFile(this->getOperation());
 	}
 }
 
 bool otp::File::encrypt()
 {
-	if ((this->operation != otp::encrypt)||this->errorState) {
+	if ((this->getOperation() != otp::encrypt)||this->errorState) {
 		return false;
 	}
 	//generate cypher
@@ -209,7 +207,7 @@ bool otp::File::encrypt()
 
 bool otp::File::decrypt()
 {
-	if ((this->operation != otp::decrypt)||this->errorState||(!this->cypherSupplied)) {
+	if ((this->getOperation() != otp::decrypt)||this->errorState||(!this->cypherSupplied)) {
 		return false;
 	}
 	// add cypher to file using modular addition

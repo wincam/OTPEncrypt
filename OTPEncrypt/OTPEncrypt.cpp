@@ -133,9 +133,9 @@ int main(int argc, char* argv[])
 	
 	for (int i = 0; i < encryptFilesSize; i++)
 	{
-		filesToEncrypt[i] = new otp::File(encryptFiles[i], otp::encrypt);
-		filesToEncrypt[i][0].encrypt();
-		filesToEncrypt[i][0].writeCyperText();
+		filesToEncrypt[i] = new otp::Folder(encryptFiles[i], otp::encrypt);
+		/*filesToEncrypt[i][0].encrypt();
+		filesToEncrypt[i][0].writeCyperText();*/
 	}
 
 	//file decrypting
@@ -143,9 +143,9 @@ int main(int argc, char* argv[])
 
 	for (int i = 0; i < decryptFilesSize; i++)
 	{
-		filesToDecrypt[i] = new otp::File(decryptFiles[i], otp::decrypt);
-		filesToDecrypt[i][0].decrypt();
-		filesToDecrypt[i][0].writeFile();
+		filesToDecrypt[i] = new otp::Folder(decryptFiles[i], otp::decrypt);
+		/*filesToDecrypt[i][0].decrypt();
+		filesToDecrypt[i][0].writeFile();*/
 	}
 
 

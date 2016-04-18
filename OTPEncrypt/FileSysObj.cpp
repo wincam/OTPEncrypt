@@ -16,6 +16,16 @@ otp::FileSysObj::FileSysObj(otp::FilePathSet files)
 	this->cypherTextFilePath = files.cypherTextFile == "" ? "encryptedfile.txt" : files.cypherTextFile;
 }
 
+otp::FileOperation otp::FileSysObj::getOperation()
+{
+	return this->operation;
+}
+
+void otp::FileSysObj::setOperation(FileOperation op)
+{
+	this->operation = op;
+}
+
 std::string otp::FileSysObj::getFilePath()
 {
 	return this->filePath;

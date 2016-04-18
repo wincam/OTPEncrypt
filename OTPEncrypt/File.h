@@ -23,7 +23,6 @@ namespace otp {
 	class File : public FileSysObj
 	{
 	private:
-		FileOperation operation;
 		unsigned long size;
 		bool errorState;
 		bool cypherSupplied;
@@ -74,19 +73,14 @@ namespace otp {
 		* Getter for the error state of the class
 		* @return Whether the class is in an error state or not
 		*/
-		bool isError();
-		/**
-		* getOperation
-		* Getter for the operation of the class
-		* @return The operation of the class
-		*/
-		otp::FileOperation getOperation();
+		virtual bool isError() override;
+
 		/**
 		* setOperation
 		* Setter for the operation of the class
 		* @param op The new operation of the class
 		*/
-		void setOperation(FileOperation op);
+		virtual void setOperation(FileOperation op) override;
 
 		/**
 		* setFilePath
