@@ -207,8 +207,8 @@ int main(int argc, char* argv[])
 			return 1;
 			break;
 		}
-		filesToEncrypt[i][0].encrypt();
-		filesToEncrypt[i][0].writeCyperText();
+		filesToEncrypt[i]->encrypt();
+		filesToEncrypt[i]->writeCyperText();
 	}
 
 	//file decrypting
@@ -230,8 +230,8 @@ int main(int argc, char* argv[])
 			return 1;
 			break;
 		}
-		filesToDecrypt[i][0].decrypt();
-		filesToDecrypt[i][0].writeFile();
+		filesToDecrypt[i]->decrypt();
+		filesToDecrypt[i]->writeFile();
 	}
 
 

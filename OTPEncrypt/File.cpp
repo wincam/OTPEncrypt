@@ -242,6 +242,7 @@ bool otp::File::writeCyperText(std::string alternateFilePath)
 	}
 	// open and write
 	std::ofstream outfile(alternateFilePath == "" ? this->getCypherTextFilePath() : alternateFilePath, std::ios::binary);
+	bool out = outfile.is_open();
 	for (unsigned long i = 0; i < this->size; i++)
 	{
 		outfile.write(&fileCypherTextBytes[i], sizeof(char));

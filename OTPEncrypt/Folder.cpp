@@ -57,12 +57,12 @@ void otp::Folder::readFile(FileOperation op)
 			
 			if (info.st_mode & S_IFDIR)
 			{
-				addNewObject(new Folder(this->getFilePath() + "\\" + dir->d_name, this->getCypherFilePath() + "\\" + dir->d_name, this->getCypherTextFilePath() + "\\" + dir->d_name, this->getOperation()));
+				addNewObject({ new Folder(this->getFilePath() + "\\" + dir->d_name, this->getCypherFilePath() + "\\" + dir->d_name, this->getCypherTextFilePath() + "\\" + dir->d_name, this->getOperation()), dir->d_name });
 			}
 			// file
 			else if (info.st_mode & S_IFREG)
 			{
-				addNewObject(new File(this->getFilePath() + "\\" + dir->d_name, this->getCypherFilePath() + "\\" + dir->d_name, this->getCypherTextFilePath() + "\\" + dir->d_name, this->getOperation()));
+				addNewObject({ new File(this->getFilePath() + "\\" + dir->d_name, this->getCypherFilePath() + "\\" + dir->d_name, this->getCypherTextFilePath() + "\\" + dir->d_name, this->getOperation()), dir->d_name });
 			}
 			// neither error
 			else
@@ -82,9 +82,9 @@ void otp::Folder::readFile(FileOperation op)
 
 }
 
-void otp::Folder::addNewObject(FileSysObj * object)
+void otp::Folder::addNewObject(struct FSOItm object)
 {
-	FileSysObj** newObjectList = new FileSysObj*[this->subObjectsCount + 1];
+	struct Folder::FSOItm* newObjectList = new struct Folder::FSOItm[this->subObjectsCount + 1];
 	// copy from old array to new one
 	for (unsigned long i = 0; i < this->subObjectsCount; i++)
 	{
@@ -128,7 +128,7 @@ bool otp::Folder::isError()
 	// check all others
 	for (unsigned long i = 0; i < this->subObjectsCount; i++)
 	{
-		error = error && this->subObjects[i][0].isError();
+		error = error && this->subObjects[i].object->isError();
 	}
 	return error;
 }
@@ -158,25 +158,70 @@ void otp::Folder::setCypherTextFilePath(std::string filePath)
 
 bool otp::Folder::encrypt()
 {
-	return false;
+	if (this->isError()) {
+		return false;
+	}
+	// encrypt all file system objects
+	for (unsigned long i = 0; i < this->subObjectsCount; i++)
+	{
+		this->subObjects[i].object->encrypt();
+	}
+	return true;
 }
 
 bool otp::Folder::decrypt()
 {
-	return false;
+	if (this->isError()) {
+		return false;
+	}
+	// decrypt all file system objects
+	for (unsigned long i = 0; i < this->subObjectsCount; i++)
+	{
+		this->subObjects[i].object->decrypt();
+	}
+	return true;
 }
 
 bool otp::Folder::writeFile(std::string alternateFilePath)
 {
-	return false;
+	if (this->isError()) {
+		return false;
+	}
+
+	// TODO create folder if it does not exist
+	// decrypt all file system objects
+	for (unsigned long i = 0; i < this->subObjectsCount; i++)
+	{
+		this->subObjects[i].object->writeFile(alternateFilePath == "" ? "" : alternateFilePath + "\\" + this->subObjects[i].name);
+	}
+	return true;
+
 }
 
 bool otp::Folder::writeCyperText(std::string alternateFilePath)
 {
-	return false;
+	if (this->isError()) {
+		return false;
+	}
+	// TODO create folder if it does not exist
+	// decrypt all file system objects
+	for (unsigned long i = 0; i < this->subObjectsCount; i++)
+	{
+		this->subObjects[i].object->writeCyperText(alternateFilePath == "" ? "" : alternateFilePath + "\\" + this->subObjects[i].name);
+	}
+	return true;
 }
 
 bool otp::Folder::writeCyper(std::string alternateFilePath)
 {
-	return false;
+	if (this->isError()) {
+		return false;
+	}
+	// TODO create folder if it does not exist
+	// decrypt all file system objects
+	for (unsigned long i = 0; i < this->subObjectsCount; i++)
+	{
+		this->subObjects[i].object->writeCyper(alternateFilePath == "" ? "" : alternateFilePath + "\\" + this->subObjects[i].name);
+	}
+	return true;
 }

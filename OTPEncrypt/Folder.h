@@ -1,5 +1,6 @@
 #pragma once
 #include "FileSysObj.h"
+#include <string>
 
 /**
 * otp
@@ -23,7 +24,21 @@ namespace otp {
 	class Folder : public FileSysObj
 	{
 	private:
-		FileSysObj** subObjects;
+		/**
+		* OTPEncrypt
+		* FSOItm
+		* Container for FileSysObj and name of that object
+		*
+		* @author Cameron Nicolle
+		* @version 1.0
+		* @since 4/15/2016
+		*/
+		struct FSOItm
+		{
+			FileSysObj* object;
+			std::string name;
+		}* subObjects;
+		
 		unsigned long subObjectsCount;
 		bool errorState;
 
@@ -38,7 +53,7 @@ namespace otp {
 		* Adds new object to class
 		* @param object new object to add
 		*/
-		void addNewObject(FileSysObj* object);
+		void addNewObject(struct FSOItm object);
 	public:
 		/**
 		* Folder
