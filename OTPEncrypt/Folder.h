@@ -31,7 +31,7 @@ namespace otp {
 		*
 		* @author Cameron Nicolle
 		* @version 1.0
-		* @since 4/15/2016
+		* @since 4/18/2016
 		*/
 		struct FSOItm
 		{
