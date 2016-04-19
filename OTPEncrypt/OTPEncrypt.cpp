@@ -208,6 +208,7 @@ int main(int argc, char* argv[])
 			break;
 		}
 		filesToEncrypt[i]->encrypt();
+		filesToEncrypt[i]->writeCyper();
 		filesToEncrypt[i]->writeCyperText();
 	}
 

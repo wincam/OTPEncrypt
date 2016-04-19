@@ -187,8 +187,8 @@ bool otp::Folder::writeFile(std::string alternateFilePath)
 	if (this->isError()) {
 		return false;
 	}
-
-	// TODO create folder if it does not exist
+	//create folder
+	mkdir(alternateFilePath == "" ? this->getFilePath().c_str() : alternateFilePath.c_str());
 	// decrypt all file system objects
 	for (unsigned long i = 0; i < this->subObjectsCount; i++)
 	{
@@ -203,7 +203,8 @@ bool otp::Folder::writeCyperText(std::string alternateFilePath)
 	if (this->isError()) {
 		return false;
 	}
-	// TODO create folder if it does not exist
+	//create folder
+	mkdir(alternateFilePath == "" ? this->getCypherTextFilePath().c_str() : alternateFilePath.c_str());
 	// decrypt all file system objects
 	for (unsigned long i = 0; i < this->subObjectsCount; i++)
 	{
@@ -217,7 +218,8 @@ bool otp::Folder::writeCyper(std::string alternateFilePath)
 	if (this->isError()) {
 		return false;
 	}
-	// TODO create folder if it does not exist
+	//create folder
+	mkdir(alternateFilePath == "" ? this->getCypherFilePath().c_str() : alternateFilePath.c_str());
 	// decrypt all file system objects
 	for (unsigned long i = 0; i < this->subObjectsCount; i++)
 	{

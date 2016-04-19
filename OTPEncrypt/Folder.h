@@ -1,6 +1,7 @@
 #pragma once
 #include "FileSysObj.h"
 #include <string>
+#include <direct.h>
 
 /**
 * otp
